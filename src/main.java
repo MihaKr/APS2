@@ -1,9 +1,10 @@
+import javax.print.DocFlavor;
 import java.util.*;
 
 class ArrArray {
     public int stevec;
     public ArrayList <int[]> table;
-    HashMap<Integer, Integer> occ = new HashMap<Integer, Integer>();
+    HashMap<Integer, Integer> occ = new HashMap<>();
 
     public ArrayList <Integer> temp = new ArrayList<>();
     public boolean test = false;
@@ -17,6 +18,11 @@ class ArrArray {
     }
 
     public void insert(int e) {
+        boolean check = true;
+        boolean cont = false;
+        int contI = -1;
+        int stevec_f = 0;
+
         if(occ.containsKey(e)) {
             int x = occ.get(e);
             occ.put(e, x+1);
@@ -28,60 +34,90 @@ class ArrArray {
         if(find_two(e)) {
             return;
         }
-        temp.add(e);
+        temp.clear();
 
         for (int i = 0; i < table.size(); i++) {
-            int[] vmesni = table.get(i);
-            if (isEmpty(vmesni)) {
-                if(temp.size() == table.get(i).length) {
-                    for (int j = 0; j < temp.size(); j++) {
-                        vmesni[j] = temp.get(j);
-                    }
-                    sorter(vmesni);
-                    table.set(i, vmesni);
-                    temp.clear();
+            for (int j = 0; j < table.get(i).length; j++) {
+                if(table.get(i)[j] == -2) {
+                    cont = true;
                 }
             }
         }
-        if(temp.size() > 0) {
-            boolean check = true;
 
-            for (int i = 0; i < table.size(); i++) {
-                if(temp.size() > 0) {
-                    if(isEmpty(table.get(i))) {
-                        int[] vmes = new int[(int) Math.pow(2, i)];
-                        for (int j = 0; j < i; j++) {
-                            for (int k = 0; k < table.get(j).length; k++) {
-                                temp.add(table.get(j)[k]);
-                            }
-                            int[] clr = new int[(int) Math.pow(2, j)];
-                            table.set(j, clr);
-                        }
-                        for (int g = 0; g < temp.size(); g++) {
-                            vmes[g] = temp.get(g);
-                        }
-                        table.set(i, vmes);
-                        temp.clear();
-                        check = false;
+        temp.add(e);
+
+        for (int i = 0; i < table.size(); i++) {
+            if(isEmpty(table.get(i))) {
+                check = false;
+                if(temp.size() == table.get(i).length) {
+                    for (int k = 0; k < temp.size(); k++) {
+                        table.get(i)[k] = temp.get(k);
                     }
+                    temp.clear();
+
+                    if(i > 0 && temp.size() > 0) {
+                        for (int k = i-1; k > 0 ; k--) {
+                            for (int l = 0; l < table.get(k).length; l++) {
+                                temp.add(table.get(l)[k]);
+                            }
+                            int[] nov = new int[(int) Math.pow(2, i)];
+                            table.set(i, nov);
+                        }
+                        for (int k = table.get(i).length; k < temp.size(); k++) {
+                            table.get(i)[k] = temp.get(k);
+                        }
+                        temp.clear();
+                    }
+                    sorter(table.get(i));
+                    fix(stevec_f);
+                    return;
                 }
             }
-            if(check) {
-                int[] nov = new int[(int) Math.pow(2, table.size())];
-                for (int i = 0; i < table.size(); i++) {
-                    for (int j = 0; j < table.get(i).length; j++) {
+            else {
+                stevec_f++;
+                for (int j = 0; j < table.get(i).length; j++) {
+                    if (table.get(i)[j] != 0) {
                         temp.add(table.get(i)[j]);
                     }
-                    int[] vmes = new int[(int) Math.pow(2, i)];
-                    table.set(i, vmes);
+                    if(table.get(i)[j] == -2) {
+                        table.get(i)[j] = e;
+                        temp.clear();
+                        sorter(table.get(i));
+                        return;
+                    }
                 }
-                for (int i = 0; i < temp.size(); i++) {
-                    nov[i] = temp.get(i);
+                if(!cont) {
+                    int[] nov = new int[(int) Math.pow(2, i)];
+                    table.set(i, nov);
+                    Collections.sort(temp);
                 }
-                sorter(nov);
-                temp.clear();
-                table.add(nov);
             }
+        }
+
+        if(check) {
+            int[] nov = new int[(int) Math.pow(2, table.size())];
+            for (int i = table.size()-1; i >= 0; i--) {
+                for (int j = 0; j < table.get(i).length; j++) {
+                    if(table.get(i)[j] != 0) {
+                        temp.add(table.get(i)[j]);
+                    }
+                }
+            }
+            for (int i = 0; i < temp.size(); i++) {
+                nov[i] = temp.get(i);
+            }
+            temp.clear();
+
+            sorter(nov);
+            table.add(nov);
+        }
+    }
+
+    public void fix (int stevec) {
+        for (int i = 0; i < stevec; i++) {
+            int[] nov = new int[(int) Math.pow(2, i)];
+            table.set(i, nov);
+            Collections.sort(temp);
         }
     }
 
@@ -96,7 +132,7 @@ class ArrArray {
                 }
                 else if(min < e && e < max) {
                     for (int j = 0; j < table.get(i).length; j++) {
-                        int x = binarySearch(table.get(i), 0, table.get(i).length, e);
+                        int x = binarySearch(table.get(i), 0, table.get(i).length-1, e);
                         if(x != -1) {
                             found = true;
                         }
@@ -118,7 +154,7 @@ class ArrArray {
                 }
                 else if(min < e && e < max) {
                     for (int j = 0; j < table.get(i).length; j++) {
-                        int x = binarySearch(table.get(i), 0, table.get(i).length, e);
+                        int x = binarySearch(table.get(i), 0, table.get(i).length-1, e);
                         if(x != -1) {
                             return true;
                         }
@@ -132,8 +168,13 @@ class ArrArray {
 
     public void delete(int e) {
 
-        int y = occ.get(e);
-        occ.put(e, y-1);
+        if(occ.containsKey(e)) {
+            int y = occ.get(e);
+            occ.put(e, y - 1);
+        }
+        else {
+            return;
+        }
 
         boolean found = false;
         for (int i = 0; i < table.size(); i++) {
@@ -144,25 +185,24 @@ class ArrArray {
                 if(e == max) {
                     if (occ.get(e) == 0) {
                         mid[mid.length - 1] = -2;
-                        found = true;
                     }
+                    found = true;
                 }
 
                 if(e == min) {
                     if(occ.get(e) == 0) {
                         mid[0] = -2;
-                        found = true;
                     }
-
+                    found = true;
                 }
 
                 else if(min < e && e < max) {
-                    int x = binarySearch(table.get(i), 0, table.get(i).length, e);
+                    int x = binarySearch(table.get(i), 0, table.get(i).length-1, e);
                     if(x != -1) {
                         if(occ.get(e) == 0) {
                             mid[x] = -2;
-                            found = true;
                         }
+                        found = true;
                     }
                 }
                 table.set(i,mid);
@@ -239,7 +279,19 @@ class ArrArray {
     } */
 
     public void printOut() {
+        boolean empty = true;
+        for (int i = 0; i < table.size(); i++) {
+            for (int j = 0; j < table.get(i).length; j++) {
+                if(table.get(i)[j] != -2 && table.get(i)[j] != 0) {
+                    empty = false;
+                }
+            }
+        }
         if(table.size() == 1) {
+            System.out.println("empty");
+            return;
+        }
+        if(empty) {
             System.out.println("empty");
             return;
         }
@@ -306,9 +358,7 @@ class ArrArray {
 
 public class main {
     public static void main(String[] args) {
-
         ArrArray tbl = new ArrArray();
-
         tbl.insert(7);
         tbl.insert(5);
         tbl.insert(9);
@@ -319,9 +369,29 @@ public class main {
         tbl.delete(15);
         tbl.insert(11);
         tbl.delete(5);
+        tbl.delete(11);
+        tbl.insert(22);
+        tbl.insert(33);
+        tbl.insert(12);
+        tbl.insert(9);
+        tbl.delete(7);
+        tbl.insert(7);
+        tbl.insert(18);
+        tbl.insert(19);
+        tbl.insert(99);
+        tbl.insert(98);
         tbl.printOut();
-        tbl.find(7);
-        tbl.find(5);
+        tbl.find(11);
+        tbl.find(9);
         tbl.find(42);
+        tbl.delete(4);
+        tbl.insert(98);
+        tbl.insert(4);
+        tbl.delete(4);
+        tbl.delete(98);
+        tbl.delete(98);
+        tbl.delete(7);
+        tbl.delete(18);
+        tbl.printOut();
     }
 }
