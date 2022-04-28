@@ -11,6 +11,7 @@ class Node {
 class entry  {
     int key;
     int occ;
+    boolean del = false;
 
     public entry(int key, int occ) {
         this.key = key;
@@ -42,12 +43,17 @@ class BST {
             return root;
         }
 
-        if (key.key < root.key.key)
+        this.compares++;
+
+        if (key.key < root.key.key) {
             root.left = recursion(root.left, key);
-        else if (key.key > root.key.key)
+        }
+        else if (key.key > root.key.key) {
             root.right = recursion(root.right, key);
+        }
 
         return root;
+
     }
 
     boolean find_t(int key) {
@@ -80,17 +86,15 @@ class BST {
     }
 
     boolean findRec (Node x, int key) {
-        this.compares++;
         if(x == null) {
             return false;
         }
-
         this.compares++;
+
         if(x.key.key == key) {
             return true;
         }
 
-        this.compares++;
         if(key < x.key.key) {
             return findRec(x.left, key);
         }
@@ -104,10 +108,12 @@ class BST {
         root = deleteR(root, key);
     }
 
-
     Node deleteR(Node root, int key) {
         if (root == null) {
             return root;
+        }
+        if(!root.key.del) {
+            this.compares++;
         }
 
         if (key < root.key.key) {
@@ -117,27 +123,35 @@ class BST {
             root.right = deleteR(root.right, key);
         }
         else {
-            if (root.left == null) {
-                return root.right;
+            if(!root.key.del) {
+                root.key.occ--;
             }
-            else if (root.right == null) {
-                return root.left;
-            }
-
-            root.key.occ--;
-            if(root.key.occ == 0) {
-                if(sr == true) {
-                    root.key = minValue(root.left);
-                    sr = false;
-                    root.left = deleteR(root.left, root.key.key);
-
+            if(root.key.del || root.key.occ == 0) {
+                if (root.left == null && root.right == null) {
+                    return null;
                 }
-                else {
-                    root.key = maxValue(root.right);
-                    sr = true;
-                    root.right = deleteR(root.right, root.key.key);
 
+                if (root.left == null) {
+                    return root.right;
+                }
+                else if (root.right == null) {
+                    return root.left;
+                }
+                else{
+                    if (sr) {
+                        maxValue(root.left).del = true;
+                        root.key = maxValue(root.left);
+                        sr = false;
+                        root.left = deleteR(root.left, root.key.key);
+                        root.key.del = false;
 
+                    } else {
+                        minValue(root.right).del = true;
+                        root.key = minValue(root.right);
+                        sr = true;
+                        root.right = deleteR(root.right, root.key.key);
+                        root.key.del = false;
+                    }
                 }
             }
         }
@@ -147,8 +161,7 @@ class BST {
 
     entry minValue(Node root) {
         entry min = root.key;
-        while (root.left != null)
-        {
+        while (root.left != null) {
             min = root.left.key;
             root = root.left;
         }
@@ -157,15 +170,12 @@ class BST {
 
     entry maxValue(Node root) {
         entry max = root.key;
-        while (root.right != null)
-        {
+        while (root.right != null) {
             max = root.right.key;
             root = root.right;
         }
         return max;
     }
-
-
 
     void printInorder() {
         if(this.root != null) {
@@ -213,10 +223,8 @@ class BST {
 
     void printNodeComparisons() {
         System.out.println(this.compares);
-
     }
 }
-
 public class DN2 {
     public static void main(String[] args) {
         BST b = new BST();
@@ -238,6 +246,5 @@ public class DN2 {
         b.delete(15);
         b.delete(43);
         b.printPreorder();
-        b.printPostorder();
     }
 }
