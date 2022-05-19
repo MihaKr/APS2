@@ -1,90 +1,119 @@
 class binheap {
 
-    static int []table = new int[50];
-    int size = -1;
+    static int []table = new int[20];
+    int size = 0;
+    int comp = 0;
 
-
-
-    void insert(int key) {
+    void insert(int p) {
+        if(size == 0) {
+            comp++;
+        }
+        table[size] = p;
         size++;
-        table[size] = key;
 
-        shiftDown(size);
+        int i = size-1;
 
+
+        comp++;
+        while(i != 0 && table[parent(i)] > table[i]) {
+            swap(i, parent(i));
+            i = parent(i);
+        }
     }
+
+
     void deleteMin() {
+        if(size != 0) {
+            System.out.println("true: " + table[0]);
+        }
+        else {
+            System.out.println("false");
+        }
+        size--;
+
+        table[0] = table[size];
+        table[size] = 0;
+        heapfiy(0);
 
     }
 
     void printElements() {
-        int min = 100000;
-        int minI = 0;
-
-        for (int i = 0; i < table.length; i++) {
-            if(table[i] > min) {
-                min = table[i];
-                minI = i;
-            }
-        }
-
-
-        if(size == -1) {
+        if(size == 0) {
             System.out.println("empty");
         }
         else {
-            preRec(minI);
+            for (int i = 0; i < table.length; i++) {
+                if(table[i] != 0) {
+                    if(i != 0) {
+                        System.out.print(", ");
+                    }
+                    System.out.print(table[i]);
+                }
+                else {
+                    System.out.print("");
+                    System.out.println();
+                    return;
+                }
+            }
         }
     }
-
-    void preRec(int root) {
-        System.out.println(table[root]);
-        if(table[left(root)] != 0) {
-            preRec(left(root));
-        }
-        if(table[right(root)] != 0) {
-            preRec(right(root));
-        }
-    }
-
 
     void printMin() {
-
+        if(size != 0) {
+            System.out.println("MIN: " + table[0]);
+        }
+        else {
+            System.out.println("MIN: none");
+        }
     }
+
     void printComparisons() {
-
+        System.out.println("COMPARISONS: " + comp);
     }
 
-    static void shiftUp(int i) {
-        if(i > 0) {
-            while (table[parent(i)] < table[i]) {
-                swap(parent(i),i);
-                i = parent(i);
-            }
-        }
+    int leftChild(int i) {
+        return ((2 * i) + 1);
     }
 
-    void shiftDown(int i) {
-        int maxIndex = i;
+    int rightChild(int i) {
+        return ((2 * i) + 2);
+    }
 
-        int l = left(i);
+    void heapfiy(int i)  {
+        int l = leftChild(i);
+        int r = rightChild(i);
 
-        if(l <= size) {
-            while (table[maxIndex] < table[l]) {
-                maxIndex = l;
+        int min = i;
+
+        if(l != 0 && r!= 0) {
+            comp++;
+
+            if (l < size && table[l] < table[i]) {
+                min = l;
+            }
+            if (r < size && table[r] < table[min]) {
+                min = r;
+            }
+
+            if (i == min) {
+                swap(i, min);
+            } else {
+                comp++;
+                if (min <= table[i]) {
+                    swap(i, min);
+                }
             }
         }
-
-        int r = right(i);
-
-        if(r <= size) {
-            while (table[maxIndex] < table[r]) {
-                maxIndex = r;
+        else {
+            if (l < size && table[l] < table[i]) {
+                min = l;
             }
-        }
-
-        if (i != maxIndex) {
-            swap(i, maxIndex);
-            shiftDown(maxIndex);
+            if (r < size && table[r] < table[min]) {
+                min = r;
+            }
+            if (min < table[i]) {
+                swap(i, min);
+            }
         }
     }
 
@@ -95,33 +124,34 @@ class binheap {
     }
 
     static int parent(int i) {
-        return (i - 1) / 2;
+        int x = (i - 1) / 2;
+        return x;
     }
-
-
-    static int left(int i) {
-        return ((2 * i) + 1);
-    }
-
-
-    static int right(int i) {
-        return ((2 * i) + 2);
-    }
-
 }
 
 public class DN4 {
     public static void main(String[] args) {
         binheap bh = new binheap();
 
-        bh.insert(10);
-        bh.insert(20);
-        bh.insert(30);
-        bh.insert(5);
-        bh.insert(15);
-        bh.insert(7);
-        bh.insert(25);
         bh.printElements();
-
+        bh.printMin();
+        bh.printComparisons();
+        bh.insert(30); bh.insert(20); bh.insert(10);
+        bh.insert(7); bh.insert(25); bh.insert(5); bh.insert(15);
+        bh.printElements();
+        bh.printMin();
+        bh.printComparisons();
+        bh.deleteMin();
+        bh.printElements();
+        bh.printComparisons();
+        bh.deleteMin();
+        bh.printElements();
+        bh.deleteMin();
+        bh.printElements();
+        bh.deleteMin(); bh.deleteMin(); bh.deleteMin();
+        bh.printElements();
+        bh.deleteMin();
+        bh.printElements();
+        bh.printComparisons();
     }
 }
